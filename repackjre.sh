@@ -58,7 +58,7 @@ makearch () {
 makeuni () { 
   echo "Making universal...";
   cd "$work";
-  tar xf $(find "$in" -name jre8-arm64-*release.tar.xz) > /dev/null; rm -rf bin;
+  tar xf $(find "$in" -name jre11-arm64-*release.tar.xz) > /dev/null; rm -rf bin;
   rm -rf lib/aarch64;
   rm lib/jexec;
   rm release;

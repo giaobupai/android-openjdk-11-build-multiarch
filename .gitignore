@@ -11,9 +11,6 @@ jre.tar.xz
 jreout
 .DS_Store
 .idea
-ios-missing-include/cups
-ios-missing-include/X11
-ios-missing-include/Xm
 dizout
 jreout
 jdkout

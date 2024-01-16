@@ -15,17 +15,6 @@ export FREETYPE_DIR=$PWD/freetype-$BUILD_FREETYPE_VERSION/build_android-$TARGET_
 export CUPS_DIR=$PWD/cups-2.2.4
 export CFLAGS+=" -DLE_STANDALONE" # -I$FREETYPE_DIR -I$CUPS_DI
 
-# if [ "$TARGET_JDK" == "aarch32" ] || [ "$TARGET_JDK" == "aarch64" ]
-# then
-#   export CFLAGS+=" -march=armv7-a+neon"
-# fi
-
-# It isn't good, but need make it build anyways
-# cp -R $CUPS_DIR/* $ANDROID_INCLUDE/
-
-# cp -R /usr/include/X11 $ANDROID_INCLUDE/
-# cp -R /usr/include/fontconfig $ANDROID_INCLUDE/
-
 if [ "$BUILD_IOS" != "1" ]; then
   export CFLAGS+=" -O3 -D__ANDROID__"
 
@@ -61,18 +50,18 @@ ln -s -f $CUPS_DIR/cups $ANDROID_INCLUDE/
 cd openjdk
 
 # Apply patches
-if [ "$BUILD_IOS" != "1" ]; then
-  git reset --hard
-  git apply --reject --whitespace=fix ../patches/jdk8u_android.diff || echo "git apply failed (universal patch set)"
-  if [ "$TARGET_JDK" != "aarch32" ]; then
-    git apply --reject --whitespace=fix ../patches/jdk8u_android_main.diff || echo "git apply failed (main non-universal patch set)"
-  else
-    git apply --reject --whitespace=fix ../patches/jdk8u_android_aarch32.diff || echo "git apply failed (aarch32 non-universal patch set)"
-  fi
-  if [ "$TARGET_JDK" == "x86" ]; then
-    git apply --reject --whitespace=fix ../patches/jdk8u_android_page_trap_fix.diff || echo "git apply failed (x86 page trap fix)"
-  fi
-fi
+#if [ "$BUILD_IOS" != "1" ]; then
+#  git reset --hard
+#  git apply --reject --whitespace=fix ../patches/jdk8u_android.diff || echo "git apply failed (universal patch set)"
+#  if [ "$TARGET_JDK" != "aarch32" ]; then
+#    git apply --reject --whitespace=fix ../patches/jdk8u_android_main.diff || echo "git apply failed (main non-universal patch set)"
+#  else
+#    git apply --reject --whitespace=fix ../patches/jdk8u_android_aarch32.diff || echo "git apply failed (aarch32 non-universal patch set)"
+#  fi
+#  if [ "$TARGET_JDK" == "x86" ]; then
+#    git apply --reject --whitespace=fix ../patches/jdk8u_android_page_trap_fix.diff || echo "git apply failed (x86 page trap fix)"
+#  fi
+#fi
 
 #   --with-extra-cxxflags="$CXXFLAGS -Dchar16_t=uint16_t -Dchar32_t=uint32_t" \
 #   --with-extra-cflags="$CPPFLAGS" \
