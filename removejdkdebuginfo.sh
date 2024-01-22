@@ -1,30 +1,50 @@
 #!/bin/bash
 set -e
 
-if [ "$TARGET_JDK" == "arm" ]; then
-  export TARGET_JDK=aarch32
+. setdevkitpath.sh
+
+imagespath=openjdk/build/${JVM_PLATFORM}-${TARGET_JDK}-${JVM_VARIANTS}-${JDK_DEBUG_LEVEL}/images
+
+rm -rf dizout jreout jdkout dSYM-temp
+mkdir -p dizout dSYM-temp/{lib,bin}
+
+cp freetype-$BUILD_FREETYPE_VERSION/build_android-$TARGET_SHORT/lib/libfreetype.so $imagespath/jdk/lib/
+
+cp -r $imagespath/jdk jdkout
+
+# JDK no longer create separate JRE image, so we have to create one manually.
+#mkdir -p jreout/bin
+#cp jdkout/bin/{java,jfr,keytool,rmiregistry} jreout/bin/
+#cp -r jdkout/{conf,legal,lib,man,release} jreout/
+#rm jreout/lib/src.zip
+
+export EXTRA_JLINK_OPTION=
+
+if [ "$TARGET_JDK" == "aarch64" ] || [ "$TARGET_JDK" == "x86_64" ]; then
+   echo "Building for aarch64 or x86_64, introducing JVMCI module"
+   export EXTRA_JLINK_OPTION=,jdk.internal.vm.ci
 fi
 
-imagespath=openjdk/build/${JVM_PLATFORM}-${TARGET_JDK}-normal-${JVM_VARIANTS}-${JDK_DEBUG_LEVEL}/images
+# Produce the jre equivalent from the jdk (https://blog.adoptium.net/2021/10/jlink-to-produce-own-runtime/)
+jlink \
+--module-path=jdkout/jmods \
+--add-modules java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.sql,java.sql.rowset,java.transaction.xa,java.xml,java.xml.crypto,jdk.accessibility,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.httpserver,jdk.jdwp.agent,jdk.jfr,jdk.jsobject,jdk.localedata,jdk.management,jdk.management.agent,jdk.management.jfr,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.nio.mapmode,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs$EXTRA_JLINK_OPTION \
+--output jreout \
+--strip-debug \
+--no-man-pages \
+--no-header-files \
+--release-info=jdkout/release \
+--compress=0
 
-rm -rf dizout jreout jdkout
-mkdir dizout
-
-cp -r $imagespath/j2re-image jreout
-cp -r $imagespath/j2sdk-image jdkout
-
-if [ "$TARGET_JDK" == "x86" ]; then
-  export TARGET_JDK=i386
-fi
-
-mv jdkout/jre/lib/${TARGET_JDK}/libfreetype.so.6 jdkout/lib/${TARGET_JDK}/libfreetype.so || echo "Move exit $?"
-mv jdkout/jre/lib/libfreetype.dylib.6 jdkout/jre/lib/libfreetype.dylib || echo "Move exit $?"
-mv jreout/lib/${TARGET_JDK}/libfreetype.so.6 jreout/lib/${TARGET_JDK}/libfreetype.so || echo "Move exit $?"
-mv jreout/lib/libfreetype.dylib.6 jreout/lib/libfreetype.dylib || echo "Move exit $?"
+cp freetype-$BUILD_FREETYPE_VERSION/build_android-$TARGET_SHORT/lib/libfreetype.so jreout/lib/
 
 # mv jreout/lib/${TARGET_JDK}/libfontmanager.diz jreout/lib/${TARGET_JDK}/libfontmanager.diz.keep
-# find jreout -name "*.diz" | xargs -- rm
+# find jreout -name "*.debuginfo" | xargs -- rm
 # mv jreout/lib/${TARGET_JDK}/libfontmanager.diz.keep jreout/lib/${TARGET_JDK}/libfontmanager.diz
 
-find jreout -name "*.diz" -delete
-find jdkout -name "*.diz" -exec mv {} dizout/ \;
+#find jdkout -name "*.debuginfo" | xargs -- rm
+find jdkout -name "*.debuginfo" -exec mv {}   dizout/ \;
+
+find jdkout -name "*.dSYM"  | xargs -- rm -rf
+
+#TODO: fix .dSYM stuff

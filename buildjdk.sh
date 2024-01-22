@@ -5,15 +5,12 @@ set -e
 export FREETYPE_DIR=$PWD/freetype-$BUILD_FREETYPE_VERSION/build_android-$TARGET_SHORT
 export CUPS_DIR=$PWD/cups-2.2.4
 export CFLAGS+=" -DLE_STANDALONE" # -I$FREETYPE_DIR -I$CUPS_DI
-
-if [ "$TARGET_JDK" == "arm" ] # || [ "$BUILD_IOS" == "1" ]
+if [ "$TARGET_JDK" == "arm" ]
 then
   export CFLAGS+=" -O3 -D__thumb__"
 else
   export CFLAGS+=" -O3"
 fi
-
-export CFLAGS+=" -D__ANDROID__"
 
 chmod +x android-wrapped-clang
 chmod +x android-wrapped-clang++
@@ -25,9 +22,12 @@ platform_args="--with-toolchain-type=gcc \
   "
 AUTOCONF_x11arg="--x-includes=$ANDROID_INCLUDE/X11"
 
-export LDFLAGS+=" -L`pwd`/dummy_libs"
+export BOOT_JDK=$PWD/jdk-10
+export CFLAGS+=" -DANDROID"
+export LDFLAGS+=" -L$PWD/dummy_libs"
 
-sudo apt -y install systemtap-sdt-dev gcc-multilib g++-multilib libxtst-dev libasound2-dev libelf-dev libfontconfig1-dev libx11-dev
+sudo apt -y install systemtap-sdt-dev libxtst-dev libasound2-dev libelf-dev libfontconfig1-dev libx11-dev libxext-dev libxrandr-dev libxrender-dev libxtst-dev libxt-dev
+
 # Create dummy libraries so we won't have to remove them in OpenJDK makefiles
 mkdir -p dummy_libs
 ar cru dummy_libs/libpthread.a
@@ -37,35 +37,19 @@ ar cru dummy_libs/libthread_db.a
 # fix building libjawt
 ln -s -f $CUPS_DIR/cups $ANDROID_INCLUDE/
 
-#FREEMARKER=$PWD/freemarker-2.3.8/lib/freemarker.jar
-
 cd openjdk
 
 # Apply patches
-#if [ "$BUILD_IOS" != "1" ]; then
-#  git reset --hard
-#  git apply --reject --whitespace=fix ../patches/jdk8u_android.diff || echo "git apply failed (universal patch set)"
-#  if [ "$TARGET_JDK" != "aarch32" ]; then
-#    git apply --reject --whitespace=fix ../patches/jdk8u_android_main.diff || echo "git apply failed (main non-universal patch set)"
-#  else
-#    git apply --reject --whitespace=fix ../patches/jdk8u_android_aarch32.diff || echo "git apply failed (aarch32 non-universal patch set)"
-#  fi
-#  if [ "$TARGET_JDK" == "x86" ]; then
-#    git apply --reject --whitespace=fix ../patches/jdk8u_android_page_trap_fix.diff || echo "git apply failed (x86 page trap fix)"
-#  fi
-#fi
+# git reset --hard
+# git apply --reject --whitespace=fix ../patches/jdk11u_android.diff || echo "git apply failed (Android patch set)"
+
+# rm -rf build
 
 #   --with-extra-cxxflags="$CXXFLAGS -Dchar16_t=uint16_t -Dchar32_t=uint32_t" \
 #   --with-extra-cflags="$CPPFLAGS" \
-#   --with-sysroot="$(xcrun --sdk iphoneos --show-sdk-path)" \
 
-# Let's print what's available
-# bash configure --help
-
-#   --with-freemarker-jar=$FREEMARKER \
-#   --with-toolchain-type=clang \
-#   --with-native-debug-symbols=none \
 bash ./configure \
+    --with-boot-jdk=$BOOT_JDK \
     --openjdk-target=$TARGET \
     --with-extra-cflags="$CFLAGS" \
     --with-extra-cxxflags="$CFLAGS" \
@@ -73,9 +57,9 @@ bash ./configure \
     --disable-precompiled-headers \
     --disable-warnings-as-errors \
     --enable-option-checking=fatal \
-    --with-jdk-variant=normal \
     --enable-headless-only=yes \
-    --with-jvm-variants="${JVM_VARIANTS/AND/,}" \
+    --with-jvm-variants=$JVM_VARIANTS \
+    --with-jvm-features=-dtrace,-zero,-vm-structs,-epsilongc \
     --with-cups-include=$CUPS_DIR \
     --with-devkit=$TOOLCHAIN \
     --with-native-debug-symbols=external \
@@ -91,10 +75,12 @@ if [ "$error_code" -ne 0 ]; then
   exit $error_code
 fi
 
-cd build/${JVM_PLATFORM}-${TARGET_JDK}-normal-${JVM_VARIANTS}-${JDK_DEBUG_LEVEL}
-make JOBS=4 images || \
+jobs=4
+
+cd build/${JVM_PLATFORM}-${TARGET_JDK}-${JVM_VARIANTS}-${JDK_DEBUG_LEVEL}
+make JOBS=$jobs images || \
 error_code=$?
 if [ "$error_code" -ne 0 ]; then
   echo "Build failure, exited with code $error_code. Trying again."
-  make JOBS=4 images
+  make JOBS=$jobs images
 fi

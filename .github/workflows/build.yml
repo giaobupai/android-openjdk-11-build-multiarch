@@ -17,10 +17,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - name: set up JDK 10
-      uses: actions/setup-java@v1
-      with:
-        java-version: 10
     - name: Build with CI build script
       run: bash "ci_build_arch_${{matrix.arch}}.sh"
     - name: Upload JDK build output
@@ -28,11 +24,6 @@ jobs:
       with:
         name: "jdk11-${{matrix.arch}}"
         path: jdk11*.tar.xz
-
-    - name: Setup tmate session if failed
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-
     - name: Upload JRE build output
       uses: actions/upload-artifact@v2
       with:
@@ -44,7 +35,7 @@ jobs:
         name: "jre11-debuginfo-${{matrix.arch}}"
         path: dizout
 
-  fcl:
+  pojav:
     needs: build_android
     runs-on: ubuntu-20.04
     steps:
@@ -54,26 +45,26 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: jre11-aarch32
-        path: fcl
+        path: pojav
     - name: Get jre11-aarch64
       uses: actions/download-artifact@v2
       with:
         name: jre11-aarch64
-        path: fcl
+        path: pojav
     - name: Get jre11-x86
       uses: actions/download-artifact@v2
       with:
         name: jre11-x86
-        path: fcl
+        path: pojav
     - name: Get jre11-x86_64
       uses: actions/download-artifact@v2
       with:
         name: jre11-x86_64
-        path: fcl
+        path: pojav
     - name: Repack JRE
-      run: bash "repackjre.sh" $GITHUB_WORKSPACE/fcl $GITHUB_WORKSPACE/fcl/jre11-fcl
+      run: bash "repackjre.sh" $GITHUB_WORKSPACE/pojav $GITHUB_WORKSPACE/pojav/jre11-pojav
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-          name: jre11-fcl
-          path: fcl/jre11-fcl/*
+          name: jre11-pojav
+          path: pojav/jre11-pojav/*
