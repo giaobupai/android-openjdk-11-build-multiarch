@@ -29,6 +29,7 @@ sudo apt -y install systemtap-sdt-dev gcc-multilib g++-multilib libxtst-dev liba
 # Create dummy libraries so we won't have to remove them in OpenJDK makefiles
 mkdir -p dummy_libs
 ar cru dummy_libs/libpthread.a
+ar cru dummy_libs/librt.a
 ar cru dummy_libs/libthread_db.a
 
 # fix building libjawt
