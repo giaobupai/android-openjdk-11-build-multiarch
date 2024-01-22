@@ -70,15 +70,17 @@ bash ./configure \
     --with-extra-cflags="$CFLAGS" \
     --with-extra-cxxflags="$CFLAGS" \
     --with-extra-ldflags="$LDFLAGS" \
+    --disable-precompiled-headers \
+    --disable-warnings-as-errors \
     --enable-option-checking=fatal \
     --with-jdk-variant=normal \
+    --enable-headless-only=yes \
     --with-jvm-variants="${JVM_VARIANTS/AND/,}" \
     --with-cups-include=$CUPS_DIR \
     --with-devkit=$TOOLCHAIN \
+    --with-native-debug-symbols=external \
     --with-debug-level=$JDK_DEBUG_LEVEL \
     --with-fontconfig-include=$ANDROID_INCLUDE \
-    --with-freetype-lib=$FREETYPE_DIR/lib \
-    --with-freetype-include=$FREETYPE_DIR/include/freetype2 \
     $AUTOCONF_x11arg $AUTOCONF_EXTRA_ARGS \
     --x-libraries=/usr/lib \
         $platform_args || \
