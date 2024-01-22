@@ -17,6 +17,8 @@ fi
 
 export CFLAGS+=" -D__ANDROID__"
 
+chmod +x android-wrapped-clang
+chmod +x android-wrapped-clang++
 ln -s -f /usr/include/X11 $ANDROID_INCLUDE/
 ln -s -f /usr/include/fontconfig $ANDROID_INCLUDE/
 AUTOCONF_x11arg="--x-includes=$ANDROID_INCLUDE/X11"
