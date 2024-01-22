@@ -1,4 +1,4 @@
-export NDK_VERSION=r10e
+export NDK_VERSION=r21e
 
 if [ -z "$BUILD_FREETYPE_VERSION" ]
 then
