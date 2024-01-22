@@ -8,7 +8,14 @@ export FREETYPE_DIR=$PWD/freetype-$BUILD_FREETYPE_VERSION/build_android-$TARGET_
 export CUPS_DIR=$PWD/cups-2.2.4
 export CFLAGS+=" -DLE_STANDALONE" # -I$FREETYPE_DIR -I$CUPS_DI
 
-export CFLAGS+=" -O3 -D__ANDROID__"
+if [ "$TARGET_JDK" == "arm" ] # || [ "$BUILD_IOS" == "1" ]
+then
+  export CFLAGS+=" -O3 -D__thumb__"
+else
+  export CFLAGS+=" -O3"
+fi
+
+export CFLAGS+=" -D__ANDROID__"
 
 ln -s -f /usr/include/X11 $ANDROID_INCLUDE/
 ln -s -f /usr/include/fontconfig $ANDROID_INCLUDE/
