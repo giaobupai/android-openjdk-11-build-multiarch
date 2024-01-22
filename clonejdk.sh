@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-git clone --depth 1 https://github.com/itsaky/openjdk-11-android openjdk
+git clone --branch android --depth 1 https://github.com/Tungstend/jdk11u openjdk
