@@ -7,6 +7,9 @@ export JDK_DEBUG_LEVEL=release
 sudo apt update
 sudo apt -y install autoconf python unzip zip
 
+chmod +x android-wrapped-clang
+chmod +x android-wrapped-clang++
+
 sudo chmod 777 extractndk.sh
 sudo chmod 777 maketoolchain.sh
 
