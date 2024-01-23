@@ -6,7 +6,7 @@ Based on http://openjdk.java.net/projects/mobile/android.html
 
 ### Setup
 #### Android
-- Download Android NDK r21e.
+- Download Android NDK r21.
 
 ### Platform and architecture specific environment variables
 <table>
@@ -47,7 +47,7 @@ Based on http://openjdk.java.net/projects/mobile/android.html
 
 ### Run in this directory:
 ```
-export BUILD_FREETYPE_VERSION=[2.6.2/.../2.10.4] # default: 2.10.4
+export BUILD_FREETYPE_VERSION=[2.6.2/.../2.10.4] # default: 2.10.0
 export JDK_DEBUG_LEVEL=[release/fastdebug/debug] # default: release
 export JVM_VARIANTS=[client/server] # default: client (aarch32), server (other architectures)
 
