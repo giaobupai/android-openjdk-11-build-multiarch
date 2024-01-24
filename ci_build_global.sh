@@ -2,7 +2,7 @@
 set -e
 . setdevkitpath.sh
 
-export JDK_DEBUG_LEVEL=slowdebug
+export JDK_DEBUG_LEVEL=release
 
 sudo apt update
 sudo apt -y install autoconf python unzip zip
