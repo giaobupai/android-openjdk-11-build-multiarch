@@ -4,9 +4,6 @@ set -e
 
 export JDK_DEBUG_LEVEL=release
 
-sudo apt update
-sudo apt -y install autoconf python unzip zip
-
 chmod +x android-wrapped-clang
 chmod +x android-wrapped-clang++
 
