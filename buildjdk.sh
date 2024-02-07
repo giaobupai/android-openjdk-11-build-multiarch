@@ -5,7 +5,7 @@ set -e
 export FREETYPE_DIR=$PWD/freetype-$BUILD_FREETYPE_VERSION/build_android-$TARGET_SHORT
 export CUPS_DIR=$PWD/cups-2.2.4
 export CFLAGS+=" -DLE_STANDALONE" # -I$FREETYPE_DIR -I$CUPS_DI
-if [ "$TARGET_JDK" == "arm" ]
+if [[ "$TARGET_JDK" == "arm" ]]
 then
   export CFLAGS+=" -O3 -D__thumb__"
 else
@@ -25,8 +25,6 @@ AUTOCONF_x11arg="--x-includes=$ANDROID_INCLUDE/X11"
 export BOOT_JDK=$PWD/jdk-10.0.2
 export CFLAGS+=" -DANDROID"
 export LDFLAGS+=" -L$PWD/dummy_libs"
-
-sudo apt -y install systemtap-sdt-dev libxtst-dev libasound2-dev libelf-dev libfontconfig1-dev libx11-dev libxext-dev libxrandr-dev libxrender-dev libxtst-dev libxt-dev
 
 # Create dummy libraries so we won't have to remove them in OpenJDK makefiles
 mkdir -p dummy_libs
@@ -49,6 +47,7 @@ cd openjdk
 #   --with-extra-cflags="$CPPFLAGS" \
 
 bash ./configure \
+    --with-version-pre=- \
     --with-boot-jdk=$BOOT_JDK \
     --openjdk-target=$TARGET \
     --with-extra-cflags="$CFLAGS" \
@@ -59,7 +58,7 @@ bash ./configure \
     --enable-option-checking=fatal \
     --enable-headless-only=yes \
     --with-jvm-variants=$JVM_VARIANTS \
-    --with-jvm-features=-dtrace,-zero,-vm-structs,-epsilongc \
+    --with-jvm-features=-dtrace,-zero,-vm-structs,-epsilongc,shenandoahgc,zgc \
     --with-cups-include=$CUPS_DIR \
     --with-devkit=$TOOLCHAIN \
     --with-native-debug-symbols=external \
@@ -69,7 +68,7 @@ bash ./configure \
     --x-libraries=/usr/lib \
         $platform_args || \
 error_code=$?
-if [ "$error_code" -ne 0 ]; then
+if [[ "$error_code" -ne 0 ]]; then
   echo "\n\nCONFIGURE ERROR $error_code , config.log:"
   cat config.log
   exit $error_code
