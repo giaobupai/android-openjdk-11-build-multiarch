@@ -22,7 +22,7 @@ platform_args="--with-toolchain-type=gcc \
   "
 AUTOCONF_x11arg="--x-includes=$ANDROID_INCLUDE/X11"
 
-export BOOT_JDK=$PWD/jdk-11.0.2
+export BOOT_JDK=$PWD/jdk-10.0.2
 export CFLAGS+=" -DANDROID"
 export LDFLAGS+=" -L$PWD/dummy_libs"
 
